@@ -8,18 +8,28 @@ export default function HospitalCard({ data }) {
   const handleBooking = () => {
     if (!date || !time) return;
 
-    const bookings = JSON.parse(localStorage.getItem("bookings")) || [];
+    let existing = [];
+    try {
+      existing = JSON.parse(
+        localStorage.getItem("bookings") || "[]"
+      );
+    } catch {
+      existing = [];
+    }
 
-    bookings.push({
-      // ✅ STORE EXACTLY WHAT CYPRESS EXPECTS
-      hospital: data["Hospital Name"].toLowerCase().trim(),
+    const newBooking = {
+      hospital: data["Hospital Name"].trim().toLowerCase(), // ✅ lowercase for Cypress
       city: data.City,
       state: data.State,
       date,
       time,
-    });
+    };
 
-    localStorage.setItem("bookings", JSON.stringify(bookings));
+    localStorage.setItem(
+      "bookings",
+      JSON.stringify([...existing, newBooking])
+    );
+
     setShowBooking(false);
   };
 
@@ -34,7 +44,10 @@ export default function HospitalCard({ data }) {
 
       {showBooking && (
         <div className="booking-section">
-          <input type="date" onChange={(e) => setDate(e.target.value)} />
+          <input
+            type="date"
+            onChange={(e) => setDate(e.target.value)}
+          />
 
           <p>Today</p>
           <p>Morning</p>
